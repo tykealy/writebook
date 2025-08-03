@@ -116,6 +116,7 @@ GEM
     brakeman (6.2.2)
       racc
     builder (3.3.0)
+    byebug (12.0.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -133,6 +134,10 @@ GEM
     debug (1.9.2)
       irb (~> 1.10)
       reline (>= 0.3.8)
+    dotenv (3.1.8)
+    dotenv-rails (3.1.8)
+      dotenv (= 3.1.8)
+      railties (>= 6.1)
     drb (2.2.1)
     erubi (1.13.0)
     faker (3.5.1)
@@ -362,8 +367,10 @@ PLATFORMS
 DEPENDENCIES
   bcrypt (~> 3.1.7)
   brakeman
+  byebug
   capybara
   debug
+  dotenv-rails
   faker
   front_matter_parser
   image_processing (~> 1.13)
