@@ -2,17 +2,26 @@ module SetBookLeaf
   extend ActiveSupport::Concern
 
   included do
-    before_action :set_book
+    before_action :set_container
     before_action :set_leaf, :set_leafable, only: %i[ show edit update destroy ]
   end
 
   private
-    def set_book
-      @book = Book.accessable_or_published.find(params[:book_id])
+
+    def set_container
+      if is_book?
+        @container = Book.accessable_or_published.find(params[:book_id])
+      else
+        @container = Article.find(params[:article_id])
+      end
+    end
+
+    def is_book?
+      params[:book_id].present?
     end
 
     def set_leaf
-      @leaf = @book.leaves.active.find(params[:id])
+      @leaf = @container.leaves.active.find(params[:id])
     end
 
     def set_leafable
@@ -20,7 +29,7 @@ module SetBookLeaf
     end
 
     def ensure_editable
-      head :forbidden unless @book.editable?
+      head :forbidden unless @container.editable?
     end
 
     def model_class

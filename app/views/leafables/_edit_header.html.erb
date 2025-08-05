@@ -1,15 +1,22 @@
 <nav>
-  <%= render "leaves/sidebar_toggle" %>
-
-  <%= link_to_previous_leafable(leaf, hotkey: false, for_edit: true) %>
+  <% if leaf.book_id.present? %>
+    <%= render "leaves/sidebar_toggle" %>
+    <%= link_to_previous_leafable(leaf, hotkey: false, for_edit: true) %>
+  <% end %>
 
   <div class="breadcrumbs">
     <%= render "books/index_link" %>
     <span class="flex-item-no-shrink">▸</span>
-    <%= link_to book.title, book_slug_path(book) %>
+    <%= link_to container.title, book_slug_path(container) %>
     <span class="flex-item-no-shrink">▸</span>
-    <%= form_with model: [ book, leaf ], url: leafable_path(leaf), class: "flex align-center gap-half", format: :html do |form| %>
-      <strong class="min-width"><%= form.text_field :title, form: "leafable-editor", class: "input full-width", autocomplete: "off" %></strong>
+    <% if leaf.book_id.present? %>
+      <%= form_with model: [ container, leaf ], url: leafable_path(leaf), class: "flex align-center gap-half", format: :html do |form| %>
+        <strong class="min-width"><%= form.text_field :title, form: "leafable-editor", class: "input full-width", autocomplete: "off" %></strong>
+      <% end %>
+    <% else %>
+      <%= form_with model: [ leaf.article, leaf ], url: slugged_article_path(leaf.article, leaf.article.slug, leaf.id, leaf.slug), class: "flex align-center gap-half", format: :html do |form| %>
+        <strong class="min-width"><%= form.text_field :title, form: "leafable-editor", class: "input full-width", autocomplete: "off" %></strong>
+      <% end %>
     <% end %>
   </div>
 
@@ -18,5 +25,5 @@
     <span class="for-screen-reader">Enter fullscreen</span>
   </button>
 
-  <%= render "books/searches/search", book: @book %>
+  <%= render "books/searches/search", book: @container %>
 </nav>

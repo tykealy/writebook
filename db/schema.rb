@@ -10,16 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_09_28_005927) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_04_172221) do
   create_table "accesses", force: :cascade do |t|
     t.integer "user_id", null: false
-    t.integer "book_id", null: false
+    t.integer "book_id"
     t.string "level", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "article_id"
+    t.index ["article_id"], name: "index_accesses_on_article_id"
     t.index ["book_id"], name: "index_accesses_on_book_id"
+    t.index ["user_id", "article_id"], name: "index_accesses_on_user_id_and_article_id", unique: true
     t.index ["user_id", "book_id"], name: "index_accesses_on_user_id_and_book_id", unique: true
     t.index ["user_id"], name: "index_accesses_on_user_id"
+    t.check_constraint "(book_id IS NOT NULL AND article_id IS NULL) OR (book_id IS NULL AND article_id IS NOT NULL)", name: "accesses_must_belong_to_book_or_article"
   end
 
   create_table "accounts", force: :cascade do |t|
@@ -70,6 +74,20 @@ ActiveRecord::Schema[8.0].define(version: 2024_09_28_005927) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "articles", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "subtitle"
+    t.string "author"
+    t.string "slug", null: false
+    t.boolean "published", default: false
+    t.boolean "everyone_access", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "theme", default: "blue"
+    t.index ["published"], name: "index_articles_on_published"
+    t.index ["slug"], name: "index_articles_on_slug", unique: true
+  end
+
   create_table "books", force: :cascade do |t|
     t.string "title", null: false
     t.datetime "created_at", null: false
@@ -95,7 +113,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_09_28_005927) do
   end
 
   create_table "leaves", force: :cascade do |t|
-    t.integer "book_id", null: false
+    t.integer "book_id"
     t.string "leafable_type", null: false
     t.integer "leafable_id", null: false
     t.float "position_score", null: false
@@ -103,8 +121,11 @@ ActiveRecord::Schema[8.0].define(version: 2024_09_28_005927) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "title", null: false
+    t.integer "article_id"
+    t.index ["article_id"], name: "index_leaves_on_article_id"
     t.index ["book_id"], name: "index_leaves_on_book_id"
     t.index ["leafable_type", "leafable_id"], name: "index_leafs_on_leafable"
+    t.check_constraint "(book_id IS NOT NULL AND article_id IS NULL) OR (book_id IS NULL AND article_id IS NOT NULL)", name: "leaves_must_belong_to_book_or_article"
   end
 
   create_table "pages", force: :cascade do |t|
@@ -154,6 +175,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_09_28_005927) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "edits", "leaves"
+  add_foreign_key "leaves", "articles"
   add_foreign_key "leaves", "books"
   add_foreign_key "sessions", "users"
 

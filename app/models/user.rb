@@ -6,6 +6,7 @@ class User < ApplicationRecord
 
   has_many :accesses, dependent: :destroy
   has_many :books, through: :accesses
+  has_many :articles, through: :accesses
   has_many :leaves, through: :books
 
   after_create :grant_access_to_everyone_books

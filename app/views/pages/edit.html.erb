@@ -1,12 +1,12 @@
 <% content_for(:title) { "Edit #{ @page.title }" } %>
 
 <% content_for :header do %>
-  <%= render "leafables/edit_header", leaf: @leaf, book: @book %>
+  <%= render "leafables/edit_header", leaf: @leaf, container: @container %>
 <% end %>
 
 <% content_for :toolbar do %>
   <div class="page-toolbar fill-selected align-center gap-half margin-block-end-double">
-    <%= editing_mode_toggle_switch(@leaf, checked: true) %>
+      <%= editing_mode_toggle_switch(@leaf, checked: true) %>
 
     <span class="separator margin-inline-half" aria-hidden="true"></span>
 
@@ -26,13 +26,17 @@
 <% end %>
 
 <% content_for :sidebar do %>
-  <%= render "leaves/sidebar", book: @book %>
+  <% if @leaf.book_id.present? %>
+    <%= render "leaves/sidebar", container: @container %>
+  <% end %>
 <% end %>
 
 <article class="layout--reading">
   <%= render "leaves/being_edited_indicator", leaf: @leaf %>
 
-  <%= render "pages/form", book: @book, page: @page %>
+  <%= render "pages/form", container: @container, page: @page %>
 </article>
 
-<%= render "leaves/edit_footer", leaf: @leaf %>
+<% if @leaf.book_id.present? %>
+  <%= render "leaves/edit_footer", leaf: @leaf %>
+<% end %>
