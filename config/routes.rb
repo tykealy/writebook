@@ -19,6 +19,18 @@ Rails.application.routes.draw do
     end
   end
 
+  # Standalone Articles (similar to books structure)
+  resources :articles, except: %i[ index show ] do
+    resources :pages
+    # Articles don't need nested leafables since they contain exactly 1 page
+  end
+
+  # Add articles to the main index (you might want to modify this)
+  # get "/articles", to: "articles#index"  # Articles index page
+
+  # Slugged route for articles (similar to books)
+  # get "/articles/:id/:slug", to: "articles#show", constraints: { id: /\d+/ }, as: :slugged_article
+
   resources :books, except: %i[ index show ] do
     resource :publication, controller: "books/publications", only: %i[ show edit update ]
     resource :bookmark, controller: "books/bookmarks", only: :show
@@ -39,6 +51,8 @@ Rails.application.routes.draw do
   get "/:id/:slug", to: "books#show", constraints: { id: /\d+/ }, as: :slugged_book
   get "/:book_id/:book_slug/:id/:slug", to: "leafables#show", constraints: { book_id: /\d+/, id: /\d+/ }, as: :slugged_leafable
 
+  get "/articles/:article_id/:article_slug/:id/:slug", to: "leafables#show", constraints: { article_id: /\d+/, id: /\d+/ }, as: :slugged_article
+
   direct :book_slug do |book, options|
     route_for :slugged_book, book, book.slug, options
   end
@@ -46,6 +60,12 @@ Rails.application.routes.draw do
   direct :leafable_slug do |leaf, options|
     route_for :slugged_leafable, leaf.book, leaf.book.slug, leaf, leaf.slug, options
   end
+
+  direct :article_slug do |article, options|
+    route_for :slugged_article, article, article.slug, options
+  end
+
+
 
   resources :pages, only: [] do
     scope module: "pages" do

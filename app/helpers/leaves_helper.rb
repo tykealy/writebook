@@ -17,7 +17,17 @@ module LeavesHelper
   end
 
   def leafable_edit_form(leafable, **, &)
-    form_with model: leafable, url: leafable_path(leafable.leaf), method: :put, format: :html,
+    leaf = leafable.leaf
+
+    url = if leaf.book_id.present?
+      leafable_path(leaf)
+    elsif leaf.article_id.present?
+      article_page_path(leaf.article, leaf)
+    else
+      raise "Leaf must belong to either a book or an article"
+    end
+
+    form_with model: leafable, url: url, method: :put, format: :html,
     data: {
       controller: "autosave",
       action: "autosave#submit:prevent input@document->autosave#change house-md:change->autosave#change",

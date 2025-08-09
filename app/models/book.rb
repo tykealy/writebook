@@ -12,4 +12,17 @@ class Book < ApplicationRecord
   def press(leafable, leaf_params)
     leaves.create! leaf_params.merge(leafable: leafable)
   end
+
+  def update_access(editors:, readers:)
+    editors = Set.new(editors)
+    readers = Set.new(everyone_access? ? User.active.ids : readers)
+
+    all = editors + readers
+    all_accesses = all.collect { |user_id|
+      { user_id: user_id, level: editors.include?(user_id) ? :editor : :reader }
+    }
+
+    accesses.upsert_all(all_accesses, unique_by: [ :book_id, :user_id ])
+    accesses.where.not(user_id: all).delete_all
+  end
 end

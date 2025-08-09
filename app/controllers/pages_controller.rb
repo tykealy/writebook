@@ -1,5 +1,5 @@
 class PagesController < LeafablesController
-  before_action :forget_reading_progress, except: :show
+  # before_action :forget_reading_progress, except: :show
 
   private
     def forget_reading_progress

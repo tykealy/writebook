@@ -29,9 +29,12 @@
   }
 }
 
-.book-access {
-  &:has(.book-access__switch:checked) {
-    .book-access__reader {
+.book-access,
+.article-access {
+  &:has(.book-access__switch:checked),
+  &:has(.article-access__switch:checked) {
+    .book-access__reader,
+    .article-access__reader {
       background-color: var(--color-link);
       cursor: not-allowed;
       pointer-events: none;
@@ -148,7 +151,8 @@
   z-index: 0;
 }
 
-.book__form {
+.book__form,
+.article__form {
   @media (max-width: 70ch) {
     flex-direction: column;
   }

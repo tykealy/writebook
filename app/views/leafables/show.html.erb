@@ -1,11 +1,13 @@
-<% content_for(:title) { page_title(@leaf, @book) } %>
+<% content_for(:title) { page_title(@leaf, @container) } %>
 
 <% content_for :header do %>
-  <%= render "leaves/header", book: @book, leaf: @leaf %>
+  <%= render "leaves/header", container: @container, leaf: @leaf %>
 <% end %>
 
 <% content_for :sidebar do %>
-  <%= render "leaves/sidebar", book: @book %>
+  <% if @leaf.book_id.present? %>
+    <%= render "leaves/sidebar", container: @container %>
+  <% end %>
 <% end %>
 
 <% if @leaf.section? %>
@@ -36,5 +38,7 @@
 <% end %>
 
 <% content_for :footer do %>
-  <%= render "leaves/navigation", leaf: @leaf %>
+  <% if @leaf.book_id.present? %>
+    <%= render "leaves/navigation", leaf: @leaf %>
+  <% end %>
 <% end %>

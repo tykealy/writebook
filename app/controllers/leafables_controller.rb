@@ -11,7 +11,7 @@ class LeafablesController < ApplicationController
   end
 
   def create
-    @leaf = @book.press new_leafable, leaf_params
+    @leaf = @container.press new_leafable, leaf_params
     position_new_leaf @leaf
   end
 
@@ -35,7 +35,7 @@ class LeafablesController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream { render }
-      format.html { redirect_to book_slug_url(@book) }
+      format.html { redirect_to book_slug_url(@container) }
     end
   end
 
