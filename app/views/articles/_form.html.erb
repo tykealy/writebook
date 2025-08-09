@@ -1,5 +1,5 @@
 <%= form_with model: article, id: "article-editor" do |form| %>
-  <%= tag.div class:"book__form flex align-center gap full-width #{"theme--#{article&.theme}" unless article.cover.attached? }", style:"--input-padding: 0.5rem 1rem; --input-border-radius: 0.5rem" do %>
+  <%= tag.div class:"article__form flex align-center gap full-width #{"theme--#{article&.theme}" unless article.cover.attached? }", style:"--input-padding: 0.5rem 1rem; --input-border-radius: 0.5rem" do %>
     <div class="flex gap-half">
       <fieldset class="flex flex-column unpad margin-block-end borderless justify-space-between">
         <legend class="for-screen-reader">Cover color</legend>
@@ -43,23 +43,26 @@
 
     <div class="flex flex-column gap full-width">
       <div class="flex align-center gap txt-medium">
-        <%= translation_button(:book_title) %>
+        <%= translation_button(:article_title) %>
         <h1 class="txt-xx-large margin-none full-width">
-          <%= form.text_field :title, required: true, autofocus: true, class: "input", placeholder: "Book title", autocomplete: "off" %>
+          <%= form.text_field :title, required: true, autofocus: true, class: "input", placeholder: "Article title", autocomplete: "off" %>
         </h1>
       </div>
       <div class="flex align-center gap txt-medium">
-        <%= translation_button(:book_subtitle) %>
-        <small class="txt-normal txt-large txt-tight-lines full-width"><%= form.text_area :subtitle, class: "input", placeholder: "Subtitle", autocomplete: "off" %></small>
+        <%= translation_button(:article_subtitle) %>
+         <small class="txt-normal txt-large txt-tight-lines full-width" id="<%='subtitle'%>">
+
+          <%= form.text_area :subtitle, class: "input", placeholder: "Subtitle", autocomplete: "off" %>
+        </small>
       </div>
       <div class="flex align-center gap txt-medium">
-        <%= translation_button(:book_author) %>
+        <%= translation_button(:article_author) %>
         <small class="txt-normal txt-large txt-tight-lines full-width"><%= form.text_field :author, class: "input", placeholder: "Author", autocomplete: "off" %></small>
       </div>
     </div>
   </div>
 
-  <div class="book-access border-radius center pad-double fill-shade flex flex-column gap margin-block-double">
+  <div class="article-access border-radius center pad-double fill-shade flex flex-column gap margin-block-double">
     <div class="flex align-center gap txt-medium--responsive">
       <%= image_tag "eye.svg", aria: { hidden: true }, size: 36, class: "colorize--black" %>
 
@@ -70,7 +73,7 @@
       <hr class="flex-item-grow margin-none" aria-hidden="true" style="--border-style: dashed">
 
       <label for="article_everyone_access" class="switch">
-        <%= form.check_box :everyone_access, class: "switch__input book-access__switch" %>
+        <%= form.check_box :everyone_access, class: "switch__input article-access__switch" %>
         <span class="switch__btn"></span>
         <span class="for-screen-reader">Only allow some people to read this article</span>
       </label>

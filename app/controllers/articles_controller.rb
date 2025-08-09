@@ -22,7 +22,7 @@ class ArticlesController < ApplicationController
 
   def show
     # Article shows its single page content
-    @leaf = @article.leaf
+    @leaf = @article.leaf.first
   end
 
   def edit

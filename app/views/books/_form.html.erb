@@ -1,5 +1,5 @@
 <%= form_with model: book, id: "book-editor" do |form| %>
-  <%= tag.div class:"book__form flex align-center gap full-width #{"theme--#{book&.theme}" unless book.cover.attached? }", style:"--input-padding: 0.5rem 1rem; --input-border-radius: 0.5rem" do %>
+  <%= tag.div class:"article__form flex align-center gap full-width #{"theme--#{book&.theme}" unless book.cover.attached? }", style:"--input-padding: 0.5rem 1rem; --input-border-radius: 0.5rem" do %>
     <div class="flex gap-half">
       <fieldset class="flex flex-column unpad margin-block-end borderless justify-space-between">
         <legend class="for-screen-reader">Cover color</legend>
