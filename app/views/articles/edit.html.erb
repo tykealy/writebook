@@ -316,29 +316,29 @@
 </div>
 
 <script>
-function publishArticle() {
-  if (confirm('Are you sure you want to publish this article? It will be visible to all permitted users.')) {
-    // Add hidden field for publishing
-    const form = document.getElementById('article-editor');
-    const publishInput = document.createElement('input');
-    publishInput.type = 'hidden';
-    publishInput.name = 'article[published]';
-    publishInput.value = 'true';
-    form.appendChild(publishInput);
-    form.submit();
+  function publishArticle() {
+    if (confirm('Are you sure you want to publish this article? It will be visible to all permitted users.')) {
+      // Add hidden field for publishing
+      const form = document.getElementById('article-editor');
+      const publishInput = document.createElement('input');
+      publishInput.type = 'hidden';
+      publishInput.name = 'article[published]';
+      publishInput.value = 'true';
+      form.appendChild(publishInput);
+      form.submit();
+    }
   }
-}
 
-function unpublishArticle() {
-  if (confirm('Are you sure you want to unpublish this article? It will no longer be visible to readers.')) {
-    // Add hidden field for unpublishing
-    const form = document.getElementById('article-editor');
-    const publishInput = document.createElement('input');
-    publishInput.type = 'hidden';
-    publishInput.name = 'article[published]';
-    publishInput.value = 'false';
-    form.appendChild(publishInput);
-    form.submit();
+  function unpublishArticle() {
+    if (confirm('Are you sure you want to unpublish this article? It will no longer be visible to readers.')) {
+      // Add hidden field for unpublishing
+      const form = document.getElementById('article-editor');
+      const publishInput = document.createElement('input');
+      publishInput.type = 'hidden';
+      publishInput.name = 'article[published]';
+      publishInput.value = 'false';
+      form.appendChild(publishInput);
+      form.submit();
+    }
   }
-}
 </script>

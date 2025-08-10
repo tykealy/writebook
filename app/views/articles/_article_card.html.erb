@@ -49,31 +49,6 @@
               <span class="author__name">by <%= article.author %></span>
             </div>
           <% end %>
-          
-          <% if article.collaborators.any? %>
-            <div class="meta__collaborators">
-              <div class="collaborators__label">
-                <%= image_tag "people.svg", aria: { hidden: true }, size: 14 %>
-                <span class="collaborators__count"><%= article.collaborators.count %> <%= pluralize(article.collaborators.count, 'person', 'people') %></span>
-              </div>
-              
-              <div class="collaborators__list">
-                <% article.collaborators.each do |user| %>
-                  <div class="collaborator__item" title="<%= user.name %> (<%= article.access_for(user: user)&.level&.humanize %>)">
-                    <div class="collaborator__avatar">
-                      <%= user.name.first.upcase %>
-                    </div>
-                  </div>
-                <% end %>
-                
-                <% if article.collaborators.count > 3 %>
-                  <div class="collaborator__more" title="<%= article.collaborators.count - 3 %> more people">
-                    +<%= article.collaborators.count - 3 %>
-                  </div>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
         </div>
         
         <div class="meta__details">

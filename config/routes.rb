@@ -24,7 +24,7 @@ Rails.application.routes.draw do
     resources :pages
   end
 
-  get "/articles/:article_id/:slug", to: "leafables#show", constraints: { article_id: /\d+/, slug: /(?!edit).*/ }, as: :slugged_article
+  get "/articles/:article_id/:slug", to: "leafables#show", constraints: { article_id: /\d+/, slug: /.*/ }, as: :slugged_article
 
   resources :books, except: %i[ index show ] do
     resource :publication, controller: "books/publications", only: %i[ show edit update ]

@@ -16,17 +16,17 @@
     </div>
 
     <div class="nav__actions">
-      <%# <% if Current.user %>
-        <%# <%= link_to users_path, class: "nav__link" do %>
-          <%# <%= image_tag "settings.svg", aria: { hidden: true }, size: 20 %>
-          <%# <span class="nav__link-text">Settings</span> %>
-        <%# <% end %>
-      <%# <% else %>
-        <%# <%= link_to new_session_path, class: "nav__link nav__link--primary" do %>
-          <%# <%= image_tag "login-keys.svg", aria: { hidden: true }, size: 20 %>
-          <%# <span class="nav__link-text">Sign in</span> %>
-        <%# <% end %>
-      <%# <% end %>
+      <% if Current.user %>
+        <%= link_to users_path, class: "nav__link" do %>
+          <%= image_tag "settings.svg", aria: { hidden: true }, size: 20 %>
+          <span class="nav__link-text">Settings</span>
+        <% end %>
+      <% else %>
+        <%= link_to new_session_path, class: "nav__link nav__link--primary" do %>
+          <%= image_tag "login-keys.svg", aria: { hidden: true }, size: 20 %>
+          <span class="nav__link-text">Sign in</span>
+        <% end %>
+      <% end %>
     </div>
   </nav>
 <% end %>
