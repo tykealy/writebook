@@ -1,0 +1,58 @@
+<% cache article do %>
+  <figure class="library__book <%= "theme--#{article&.theme}" unless article.cover.attached? %>">
+    <div class="flex flex-column gap-half">
+      <div class="flex-inline position-relative center">
+        <% if article.cover.attached? %>
+          <%= link_to slugged_article_path(article, article.slug), class: "article__cover-link" do %>
+            <%= image_tag article.cover, alt: "Article cover", class: "book__cover" %>
+          <% end %>
+        <% else %>
+          <%= link_to slugged_article_path(article, article.slug), class: "article__cover-link" do %>
+            <span class="book__cover-wrapper">
+              <%= image_tag "empty-cover.png", alt: "Article cover", class: "book__cover margin-block-none center" %>
+              <span class="book__title overflow-line-clamp pad txt-align-start txt-tight-lines" style="--lines: 6" aria-hidden="true">
+                <%= article.title %>
+                <span class="book__subtitle overflow-line-clamp pad txt-align-start txt-tight-lines" style="--lines: 6" aria-hidden="true">
+                  <%= article.subtitle %>
+                </span>
+              </span>
+            </span>
+          <% end %>
+        <% end %>
+        
+        <% if article.published %>
+          <span class="article__status article__status--published" title="Published">
+            <%= image_tag "check.svg", aria: { hidden: true }, size: 16 %>
+          </span>
+        <% else %>
+          <span class="article__status article__status--draft" title="Draft">
+            <%= image_tag "art.svg", aria: { hidden: true }, size: 16 %>
+          </span>
+        <% end %>
+      </div>
+      
+      <div class="article__meta">
+        <h2 class="margin-none flex flex-column txt-normal txt-tight-lines txt-medium--responsive">
+          <%= link_to slugged_article_path(article, article.slug), class: "article__title-link txt-undecorated" do %>
+            <strong><%= article.title %></strong>
+          <% end %>
+          <% if article.subtitle.present? %>
+            <span class="overflow-line-clamp txt-subtle"><%= article.subtitle %></span>
+          <% end %>
+          <% if article.author.present? %>
+            <span class="overflow-line-clamp txt-subtle txt-small"><%= article.author %></span>
+          <% end %>
+        </h2>
+        
+        <div class="article__actions">
+          <% if Current.user && article.editable? %>
+            <%= link_to edit_article_path(article), class: "btn btn--small btn--plain", title: "Edit article" do %>
+              <%= image_tag "pencil.svg", aria: { hidden: true }, size: 16 %>
+              <span class="for-screen-reader">Edit</span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </figure>
+<% end %>

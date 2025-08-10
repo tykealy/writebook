@@ -3,7 +3,10 @@
 
 <% content_for :header do %>
   <nav>
-    <span class="btn btn--placeholder" aria-hidden="true"></span>
+    <%= link_to articles_path, class: "btn" do %>
+      <%= image_tag "art.svg", aria: { hidden: true }, size: 24 %>
+      <span class="for-screen-reader">Articles</span>
+    <% end %>
 
     <a href="https://once.com/writebook" class="product__wordmark btn btn--plain txt-large center" target="_blank">
       <%= image_tag "writebook-icon.svg", aria: { hidden: true }, size: 24 %>
