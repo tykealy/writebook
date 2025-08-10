@@ -1,16 +1,28 @@
 <nav>
-  <% if leaf.book_id.present? %>
-    <%= render "leaves/sidebar_toggle" %>
-    <%= link_to_previous_leafable(leaf, hotkey: false, for_edit: true) %>
+  <%= render "leaves/sidebar_toggle" %>
+  <% if @container.is_a?(Book) %>
+    <%= link_to_previous_leafable(leaf) %>
+  <% else %>
+    <%= link_to articles_path, class: "btn" do %>
+      <%= image_tag "arrow-left.svg", aria: { hidden: true }, size: 24 %>
+      <span class="for-screen-reader">Back to articles</span>
+    <% end %>
   <% end %>
 
+
   <div class="breadcrumbs">
-    <%= render "books/index_link" %>
-    <span class="flex-item-no-shrink">▸</span>
-    <%= link_to container.title, book_slug_path(container) %>
+    <% if @container.is_a?(Book) %>
+      <%= render "books/index_link" %>
+      <span class="flex-item-no-shrink">▸</span>
+      <%= link_to @container.title, book_slug_path(@container) %>
+    <% else %>
+      <%= render "articles/article_index_link" %>
+      <span class="flex-item-no-shrink">▸</span>
+      <%= @container.author %>
+    <% end %>
     <span class="flex-item-no-shrink">▸</span>
     <% if leaf.book_id.present? %>
-      <%= form_with model: [ container, leaf ], url: leafable_path(leaf), class: "flex align-center gap-half", format: :html do |form| %>
+      <%= form_with model: [ @container, leaf ], url: leafable_path(leaf), class: "flex align-center gap-half", format: :html do |form| %>
         <strong class="min-width"><%= form.text_field :title, form: "leafable-editor", class: "input full-width", autocomplete: "off" %></strong>
       <% end %>
     <% else %>

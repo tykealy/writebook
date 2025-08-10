@@ -4,7 +4,7 @@ module Books::EditingHelper
       target_url = checked ? leafable_slug_path(leaf) : edit_leafable_path(leaf)
       render "books/edit_mode", target_url: target_url, checked: checked
     elsif leaf.article_id.present?
-      target_url = checked ? slugged_article_path(leaf.article, leaf.article.slug, leaf.id, leaf.slug) : edit_article_page_path(leaf.article, leaf)
+      target_url = checked ? slugged_article_path(leaf.article, leaf.article.slug) : edit_article_page_path(leaf.article, leaf)
       render "books/edit_mode", target_url: target_url, checked: checked
     end
   end

@@ -1,38 +1,344 @@
-<%= leaf_item_tag(@leaf) do %>
-  <span class="btn btn--link arrangement__handle txt-small">
-    <%= image_tag "handle.svg", aria: { hidden: true }, size: 24 %>
-    <span class="for-screen-reader">Move <%= leaf.title %></span>
-  </span>
+<% content_for(:title) { "Edit #{@article.title}" } %>
+<% @layout_class = "article-edit" %>
 
-  <%= link_to leafable_path(leaf), class: "toc__thumbnail", data: { turbo_frame: "_top" } do %>
-    <%= leaf.section.body if leaf.section? %>
-    <%= leaf.leafable.body.to_html if leaf.page? %>
-    <%= image_tag leaf.leafable.image.variant(:large) if leaf.picture&.image&.attached? %>
-  <% end %>
-
-  <div class="toc__title flex align-center min-width">
-    <%= form_with model: [ leaf.book, leaf ], url: leafable_path(leaf), class: "flex align-center max-width min-width", id: dom_id(leaf, "form") do |form| %>
-      <%= form.text_field :title, class: "input full-width", autofocus: true, autocomplete: "off", data: { controller: "autoselect" } %>
+<% content_for :header do %>
+  <nav class="article-edit__nav">
+      <%= link_to articles_path, class: "nav__back" do %>
+      <%= image_tag "arrow-left.svg", aria: { hidden: true }, size: 20 %>
+      <span>Back to Article</span>
     <% end %>
 
-    <span class="flex align-center gap-half">
-      <button type="submit" class="btn txt-small btn--positive" form="<%= dom_id(leaf, "form") %>">
-        <%= image_tag "check.svg", aria: { hidden: true }, size: 24 %>
-        <span class="for-screen-reader">Save</span>
-      </button>
+    <div class="nav__title">
+      <span class="nav__breadcrumb">
+        <%= link_to articles_path, class: "breadcrumb__link" do %>
+          Articles
+        <% end %>
+        <span class="breadcrumb__separator">→</span>
+        <span class="breadcrumb__current">Edit</span>
+      </span>
+    </div>
 
-      <%= button_to leafable_path(leaf), method: :delete, class: "btn btn--negative txt-small" do %>
-        <%= image_tag "trash.svg", aria: { hidden: true }, size: 24 %>
-        <span class="for-screen-reader">Delete this page</span>
-      <% end %>
-    </span>
+    <div class="nav__actions">
+      <!-- Status indicator -->
+      <div class="nav__status">
+        <% if @article.published? %>
+          <span class="status-pill status-pill--published">
+            <%= image_tag "check.svg", aria: { hidden: true }, size: 14 %>
+            Published
+          </span>
+        <% else %>
+          <span class="status-pill status-pill--draft">
+            <%= image_tag "pencil.svg", aria: { hidden: true }, size: 14 %>
+            Draft
+          </span>
+        <% end %>
+      </div>
+      
+      <button type="submit" form="article-editor" class="btn btn--primary">
+        <%= image_tag "check.svg", aria: { hidden: true }, size: 18 %>
+        <span>Save Changes</span>
+      </button>
+    </div>
+  </nav>
+<% end %>
+
+<div class="article-edit__container">
+  <!-- Main Content -->
+  <div class="article-edit__content">
+    <%= form_with model: @article, id: "article-editor", class: "article-form" do |form| %>
+      
+      <!-- Quick Actions Bar -->
+      <div class="quick-actions">
+        <div class="quick-actions__status">
+          <% unless @article.published? %>
+            <button type="button" class="btn btn--success btn--compact" onclick="publishArticle()">
+              <%= image_tag "share.svg", aria: { hidden: true }, size: 16 %>
+              <span>Publish Now</span>
+            </button>
+          <% else %>
+            <button type="button" class="btn btn--outline btn--compact" onclick="unpublishArticle()">
+              <%= image_tag "pencil.svg", aria: { hidden: true }, size: 16 %>
+              <span>Unpublish</span>
+            </button>
+          <% end %>
+        </div>
+        
+        <div class="quick-actions__meta">
+          <span class="meta-item">
+            <%= image_tag "history.svg", aria: { hidden: true }, size: 16 %>
+            Updated <%= time_ago_in_words(@article.updated_at) %> ago
+          </span>
+          <span class="meta-item">
+            <%= image_tag "people.svg", aria: { hidden: true }, size: 16 %>
+            <%= @article.collaborators.count %> collaborators
+          </span>
+        </div>
+      </div>
+
+      <!-- Article Details Section -->
+      <div class="edit-section edit-section--compact">
+        <div class="section__header section__header--minimal">
+          <h2 class="section__title">
+            <%= image_tag "art.svg", aria: { hidden: true }, size: 20 %>
+            Article Details
+          </h2>
+        </div>
+
+        <div class="section__content">
+          <div class="form__grid">
+            <!-- Left Column: Basic Info -->
+            <div class="form__column">
+              <div class="form__field">
+                <label class="form__label" for="article_title">Title *</label>
+                <%= form.text_field :title, 
+                    class: "form__input form__input--large", 
+                    placeholder: "Enter article title...",
+                    required: true,
+                    autofocus: true %>
+              </div>
+
+              <div class="form__field">
+                <label class="form__label" for="article_subtitle">Subtitle</label>
+                <%= form.text_area :subtitle, 
+                    class: "form__input form__input--textarea", 
+                    placeholder: "Add a subtitle or brief description...",
+                    rows: 2 %>
+              </div>
+
+              <div class="form__field">
+                <label class="form__label" for="article_author">Author</label>
+                <%= form.text_field :author, 
+                    class: "form__input", 
+                    placeholder: "Author name..." %>
+              </div>
+            </div>
+
+            <!-- Right Column: Visual Elements -->
+            <div class="form__column form__column--visual">
+              <div class="visual-controls">
+                <!-- Theme Selection -->
+                <div class="theme-selector">
+                  <label class="form__label">Theme</label>
+                  <div class="theme__grid">
+                    <% Article.themes.keys.each do |theme| %>
+                      <label class="theme__option" title="<%= theme.humanize %>" data-theme="<%= theme %>">
+                        <%= form.radio_button :theme, theme, class: "theme__input" %>
+                        <span class="theme__color" style="background: var(--theme-color--<%= theme %>)"></span>
+                        <%= image_tag "check.svg", aria: { hidden: true }, size: 14, class: "theme__check" %>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <!-- Cover Upload -->
+                <div class="cover-upload" data-controller="upload-preview" data-upload-preview-default-image-value="<%= asset_url('empty-cover.png') %>">
+                  <label class="form__label">Cover Image</label>
+                  <div class="cover__preview cover__preview--compact">
+                    <%= image_tag @article.cover.attached? ? @article.cover : "empty-cover.png", 
+                        alt: "Article cover", 
+                        class: "cover__image",
+                        data: { upload_preview_target: "image" } %>
+                    
+                    <div class="cover__overlay">
+                      <label class="cover__upload-btn">
+                        <%= image_tag "camera.svg", aria: { hidden: true }, size: 18 %>
+                        <span><%= @article.cover.attached? ? 'Change' : 'Add Cover' %></span>
+                        <%= form.file_field :cover, 
+                            class: "cover__input", 
+                            accept: "image/png, image/jpeg, image/jpg, image/webp",
+                            data: { 
+                              upload_preview_target: "input", 
+                              action: "upload-preview#previewImage" 
+                            } %>
+                      </label>
+                      
+                      <% if @article.cover.attached? %>
+                        <button type="button" class="cover__remove-btn" data-action="click->upload-preview#clear" data-upload-preview-target="button">
+                          <%= image_tag "trash.svg", aria: { hidden: true }, size: 16 %>
+                          <%= check_box_tag "remove_cover", "true", false, class: "hidden" %>
+                        </button>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Access Control Section -->
+      <div class="edit-section">
+        <div class="section__header">
+          <h2 class="section__title">
+            <%= image_tag "lock.svg", aria: { hidden: true }, size: 20 %>
+            Access & Permissions
+          </h2>
+          <p class="section__description">Control who can read and edit this article</p>
+        </div>
+
+        <div class="section__content">
+          <!-- Public Access Toggle -->
+          <div class="access-toggle">
+            <div class="access-toggle__option">
+              <div class="option__content">
+                <%= image_tag "globe.svg", aria: { hidden: true }, size: 24, class: "option__icon" %>
+                <div class="option__text">
+                  <h3 class="option__title">Public Access</h3>
+                  <p class="option__description">Anyone can read this article</p>
+                </div>
+              </div>
+              
+              <label class="toggle">
+                <%= form.check_box :everyone_access, class: "toggle__input" %>
+                <span class="toggle__slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- User Permissions -->
+          <div class="user-permissions">
+            <div class="permissions__header">
+              <h4 class="permissions__title">Team Access</h4>
+              <span class="permissions__count"><%= @users.count %> members</span>
+            </div>
+            
+            <div class="user-grid">
+              <% @users.each do |user| %>
+                <div class="user-card" data-controller="dependent-checkbox">
+                  <div class="user-card__info">
+                    <div class="user__avatar">
+                      <%= user.name.first.upcase %>
+                    </div>
+                    <div class="user__details">
+                      <div class="user__name">
+                        <%= user.name %>
+                        <% if user.can_administer? %>
+                          <span class="user__badge">Admin</span>
+                        <% end %>
+                      </div>
+                      <div class="user__email"><%= user.email_address %></div>
+                    </div>
+                  </div>
+
+                  <div class="user-card__permissions">
+                    <label class="permission-toggle <%= 'permission-toggle--active' if @article.accessable?(user: user) %>" title="Can read">
+                      <%= check_box_tag "reader_ids[]", user.id, 
+                          @article.accessable?(user: user) || user.can_administer?, 
+                          class: "permission-toggle__input",
+                          disabled: user.current? || user.can_administer?,
+                          data: { 
+                            action: "dependent-checkbox#input", 
+                            dependent_checkbox_target: "dependee" 
+                          } %>
+                      <%= image_tag "eye.svg", aria: { hidden: true }, size: 16 %>
+                      <span>Read</span>
+                    </label>
+
+                    <label class="permission-toggle <%= 'permission-toggle--active' if @article.editable?(user: user) %>" title="Can edit">
+                      <%= check_box_tag "editor_ids[]", user.id, 
+                          @article.editable?(user: user) || user.can_administer?, 
+                          class: "permission-toggle__input",
+                          disabled: user.current? || user.can_administer?,
+                          data: { 
+                            action: "dependent-checkbox#input", 
+                            dependent_checkbox_target: "dependant" 
+                          } %>
+                      <%= image_tag "write.svg", aria: { hidden: true }, size: 16 %>
+                      <span>Edit</span>
+                    </label>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%= form.submit "Save Changes", class: "hidden" %>
+    <% end %>
   </div>
 
-  <small class="toc__wordcount">
-    <% if leaf.page? %>
-      <%= word_count(leaf.leafable.body.content) %>
-    <% end %>
-  </small>
+  <!-- Enhanced Sidebar -->
+  <div class="article-edit__sidebar">
+    <!-- Quick Actions -->
+    <div class="sidebar__section sidebar__section--actions">
+      <h3 class="sidebar__title">Actions</h3>
+      
+      <div class="sidebar__actions">
+        <button type="submit" form="article-editor" class="btn btn--primary btn--block">
+          <%= image_tag "check.svg", aria: { hidden: true }, size: 18 %>
+          <span>Save Changes</span>
+        </button>
 
-  <%= yield if block_given? %>
-<% end %>
+        <%= link_to slugged_article_path(@article.id, @article.slug), class: "btn btn--outline btn--block" do %>
+          <%= image_tag "eye.svg", aria: { hidden: true }, size: 18 %>
+          <span>Preview Article</span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Article Statistics -->
+    <div class="sidebar__section">
+      <h3 class="sidebar__title">Statistics</h3>
+      <div class="sidebar__stats">
+        <div class="stat-item">
+          <div class="stat__value"><%= time_ago_in_words(@article.created_at) %></div>
+          <div class="stat__label">Created</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat__value"><%= time_ago_in_words(@article.updated_at) %></div>
+          <div class="stat__label">Last updated</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat__value"><%= @article.collaborators.count %></div>
+          <div class="stat__label">Collaborators</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="sidebar__section sidebar__section--danger">
+      <h3 class="sidebar__title">Danger Zone</h3>
+      <div class="sidebar__actions">
+        <%= button_to article_path(@article), 
+            method: :delete, 
+            class: "btn btn--danger btn--block btn--small",
+            data: { 
+              turbo_confirm: "Are you sure you want to delete \"#{@article.title}\"? This cannot be undone." 
+            } do %>
+          <%= image_tag "trash.svg", aria: { hidden: true }, size: 16 %>
+          <span>Delete Article</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function publishArticle() {
+  if (confirm('Are you sure you want to publish this article? It will be visible to all permitted users.')) {
+    // Add hidden field for publishing
+    const form = document.getElementById('article-editor');
+    const publishInput = document.createElement('input');
+    publishInput.type = 'hidden';
+    publishInput.name = 'article[published]';
+    publishInput.value = 'true';
+    form.appendChild(publishInput);
+    form.submit();
+  }
+}
+
+function unpublishArticle() {
+  if (confirm('Are you sure you want to unpublish this article? It will no longer be visible to readers.')) {
+    // Add hidden field for unpublishing
+    const form = document.getElementById('article-editor');
+    const publishInput = document.createElement('input');
+    publishInput.type = 'hidden';
+    publishInput.name = 'article[published]';
+    publishInput.value = 'false';
+    form.appendChild(publishInput);
+    form.submit();
+  }
+}
+</script>

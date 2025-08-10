@@ -1,20 +1,170 @@
-<% content_for(:title) { "Create a new article" } %>
+<% content_for(:title) { "Create New Article" } %>
+<% @layout_class = "article-new" %>
 
 <% content_for :header do %>
-  <nav>
-    <%= link_to root_path, class: "btn flex-item-justify-start" do %>
-      <%= image_tag "arrow-left.svg", aria: { hidden: true }, size: 24 %>
-      <span class="for-screen-reader">Cancel and go back</span>
+  <nav class="article-new__nav">
+    <%= link_to articles_path, class: "nav__back" do %>
+      <%= image_tag "arrow-left.svg", aria: { hidden: true }, size: 20 %>
+      <span>Back to Articles</span>
     <% end %>
+
+    <div class="nav__title">
+      <span class="nav__breadcrumb">
+        <%= link_to articles_path, class: "breadcrumb__link" do %>
+          Articles
+        <% end %>
+        <span class="breadcrumb__separator">→</span>
+        <span class="breadcrumb__current">New Article</span>
+      </span>
+    </div>
+
+    <div class="nav__actions">
+      <button type="submit" form="article-editor" class="btn btn--primary">
+        <%= image_tag "add.svg", aria: { hidden: true }, size: 18 %>
+        <span>Create Article</span>
+      </button>
+    </div>
   </nav>
 <% end %>
 
-<%= render "articles/form", article: @article, creating_user: Current.user, users: @users %>
+<div class="article-new__container">
+  <div class="article-new__content">
+    <%= form_with model: @article, id: "article-editor", class: "article-form" do |form| %>
+      
+      <!-- Article Info Section -->
+      <div class="section section--main">
+        <div class="section__header">
+          <h2 class="section__title">Article Details</h2>
+          <p class="section__subtitle">Enter the basic information for your new article</p>
+        </div>
+        
+        <div class="section__content">
+          <div class="form__grid">
+            <div class="form__column">
+              <!-- Title Field -->
+              <div class="form__field">
+                <label for="article_title" class="form__label">
+                  <%= image_tag "write.svg", aria: { hidden: true }, size: 20 %>
+                  <span>Title</span>
+                  <span class="field__required">*</span>
+                </label>
+                <%= form.text_field :title, 
+                    required: true, 
+                    autofocus: true, 
+                    class: "form__input form__input--large", 
+                    placeholder: "Enter your article title...",
+                    autocomplete: "off" %>
+              </div>
 
-<% content_for :footer do %>
-  <nav class="new-book-btn flex justify-center pad">
-    <button type="submit" form="article-editor" class="btn btn--reversed txt-medium--responsive" aria-label="Create article" title="Create article">
-      <%= image_tag "arrow-right.svg", aria: { hidden: true }, size: 24 %>
-    </button>
-  </nav>
-<% end %>
+              <!-- Subtitle Field -->
+              <div class="form__field">
+                <label for="article_subtitle" class="form__label">
+                  <%= image_tag "page-text.svg", aria: { hidden: true }, size: 20 %>
+                  <span>Subtitle</span>
+                </label>
+                <%= form.text_area :subtitle, 
+                    class: "form__input form__textarea", 
+                    placeholder: "Add a subtitle to provide more context...",
+                    rows: 3,
+                    autocomplete: "off" %>
+              </div>
+
+              <!-- Author Field -->
+              <div class="form__field">
+                <label for="article_author" class="form__label">
+                  <%= image_tag "person.svg", aria: { hidden: true }, size: 20 %>
+                  <span>Author</span>
+                </label>
+                <%= form.text_field :author, 
+                    class: "form__input", 
+                    placeholder: "Author name...",
+                    value: Current.user.name,
+                    autocomplete: "off" %>
+              </div>
+            </div>
+
+            <!-- Visual Settings Column -->
+            <div class="form__column form__column--visual">
+              <!-- Cover Section -->
+              <div class="cover-section">
+                <h3 class="cover-section__title">Article Cover</h3>
+                
+                <!-- Theme Selection -->
+                <div class="theme-selector">
+                  <label class="form__label">
+                    <%= image_tag "art.svg", aria: { hidden: true }, size: 20 %>
+                    <span>Cover Theme</span>
+                  </label>
+                  <div class="theme-options">
+                    <% Article.themes.keys.each do |theme| %>
+                      <label class="theme-option" data-theme="<%= theme %>">
+                        <%= form.radio_button :theme, theme, class: "theme-option__input" %>
+                        <span class="theme-option__color" style="--theme-color: var(--theme-color--<%= theme %>)"></span>
+                        <span class="theme-option__name"><%= theme.humanize %></span>
+                      </label>
+                    <% end %>
+                  </div>
+                </div>
+
+                <!-- Cover Upload -->
+                <div class="cover-upload" data-controller="upload-preview" data-upload-preview-default-image-value="<%= asset_url('empty-cover.png') %>">
+                  <label class="cover-upload__label">
+                    <%= image_tag "empty-cover.png", 
+                        alt: "Article cover preview", 
+                        class: "cover-upload__preview",
+                        data: { upload_preview_target: "image" } %>
+                    
+                    <div class="cover-upload__overlay">
+                      <%= image_tag "camera.svg", aria: { hidden: true }, size: 24 %>
+                      <span>Upload Cover</span>
+                    </div>
+                    
+                    <%= form.file_field :cover, 
+                        class: "cover-upload__input", 
+                        accept: "image/png, image/jpeg, image/jpg, image/webp",
+                        data: { 
+                          upload_preview_target: "input", 
+                          action: "upload-preview#previewImage" 
+                        } %>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Settings Section -->
+      <div class="section">
+        <div class="section__header">
+          <h2 class="section__title">Privacy & Access</h2>
+          <p class="section__subtitle">Control who can read your article</p>
+        </div>
+        
+        <div class="section__content">
+          <div class="access-settings">
+            <div class="access-option">
+              <div class="access-option__info">
+                <%= image_tag "globe.svg", aria: { hidden: true }, size: 24 %>
+                <div>
+                  <h4 class="access-option__title">Public Access</h4>
+                  <p class="access-option__subtitle">Anyone can read this article</p>
+                </div>
+              </div>
+              
+              <label class="toggle">
+                <%= form.check_box :everyone_access, 
+                    class: "toggle__input",
+                    checked: true %>
+                <span class="toggle__slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden Submit -->
+      <%= form.submit "Create Article", style: "display: none;" %>
+    <% end %>
+  </div>
+</div>

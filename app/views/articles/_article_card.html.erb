@@ -1,0 +1,120 @@
+<div class="article-card <%= "article-card--published" if article.published %> <%= "theme--#{article.theme}" unless article.cover.attached? %>" data-article-id="<%= article.id %>">
+  <!-- Main card content (reading link) -->
+  <%= link_to slugged_article_path(article.id, article.slug), class: "article-card__link" do %>
+    <!-- All the card content here -->
+    <div class="article-card__media">
+      <% if article.cover.attached? %>
+        <div class="article-card__cover">
+          <%= image_tag article.cover, alt: article.title, class: "cover__image" %>
+        </div>
+      <% else %>
+        <div class="article-card__cover article-card__cover--theme">
+          <div class="cover__pattern"></div>
+          <div class="cover__title">
+            <span><%= article.title %></span>
+          </div>
+        </div>
+      <% end %>
+      
+      <div class="article-card__status">
+        <% if article.published %>
+          <span class="status__badge status__badge--published">
+            <%= image_tag "check.svg", aria: { hidden: true }, size: 12 %>
+            <span>Published</span>
+          </span>
+        <% else %>
+          <span class="status__badge status__badge--draft">
+            <%= image_tag "pencil.svg", aria: { hidden: true }, size: 12 %>
+            <span>Draft</span>
+          </span>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="article-card__content">
+      <div class="article-card__header">
+        <h3 class="article__title"><%= article.title %></h3>
+        <% if article.subtitle.present? %>
+          <p class="article__subtitle"><%= article.subtitle %></p>
+        <% end %>
+      </div>
+
+      <div class="article-card__meta">
+        <div class="meta__people">
+          <% if article.author.present? %>
+            <div class="meta__author">
+              <div class="author__avatar">
+                <%= image_tag "person.svg", aria: { hidden: true }, size: 14 %>
+              </div>
+              <span class="author__name">by <%= article.author %></span>
+            </div>
+          <% end %>
+          
+          <% if article.collaborators.any? %>
+            <div class="meta__collaborators">
+              <div class="collaborators__label">
+                <%= image_tag "people.svg", aria: { hidden: true }, size: 14 %>
+                <span class="collaborators__count"><%= article.collaborators.count %> <%= pluralize(article.collaborators.count, 'person', 'people') %></span>
+              </div>
+              
+              <div class="collaborators__list">
+                <% article.collaborators.each do |user| %>
+                  <div class="collaborator__item" title="<%= user.name %> (<%= article.access_for(user: user)&.level&.humanize %>)">
+                    <div class="collaborator__avatar">
+                      <%= user.name.first.upcase %>
+                    </div>
+                  </div>
+                <% end %>
+                
+                <% if article.collaborators.count > 3 %>
+                  <div class="collaborator__more" title="<%= article.collaborators.count - 3 %> more people">
+                    +<%= article.collaborators.count - 3 %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="meta__details">
+          <div class="meta__access">
+            <% if article.everyone_access? %>
+              <span class="access__badge access__badge--public">
+                <%= image_tag "globe.svg", aria: { hidden: true }, size: 12 %>
+                <span>Public</span>
+              </span>
+            <% else %>
+              <span class="access__badge access__badge--private">
+                <%= image_tag "lock.svg", aria: { hidden: true }, size: 12 %>
+                <span>Private</span>
+              </span>
+            <% end %>
+          </div>
+          
+          <div class="meta__date">
+            <time datetime="<%= article.updated_at.iso8601 %>">
+              <%= time_ago_in_words(article.updated_at) %> ago
+            </time>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Actions OUTSIDE the reading link -->
+  <% if Current.user && article.editable? %>
+    <div class="article-card__actions">
+      <%= link_to edit_article_path(article), class: "action__btn action__btn--edit", title: "Edit #{article.title}" do %>
+        <%= image_tag "pencil.svg", aria: { hidden: true }, size: 16 %>
+        <span class="action__label">Edit</span>
+      <% end %>
+      
+      <%= button_to article_path(article.id), method: :delete, class: "action__btn action__btn--delete", 
+          title: "Delete #{article.title}",
+          data: { turbo_confirm: "Are you sure you want to delete \"#{article.title}\"? This cannot be undone." } do %>
+        <%= image_tag "trash.svg", aria: { hidden: true }, size: 16 %>
+        <span class="action__label">Delete</span>
+      <% end %>
+    </div>
+  <% end %>
+</div>

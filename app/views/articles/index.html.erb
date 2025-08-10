@@ -1,0 +1,150 @@
+<% content_for(:title) { "Articles | Writebook" } %>
+<% @layout_class = "articles-modern" %>
+
+<% content_for :header do %>
+  <nav class="articles__nav">
+    <%= link_to root_path, class: "nav__back" do %>
+      <%= image_tag "arrow-left.svg", aria: { hidden: true }, size: 20 %>
+      <span>Library</span>
+    <% end %>
+
+    <div class="nav__brand">
+      <a href="https://once.com/writebook" class="brand__link" target="_blank">
+        <%= image_tag "writebook-icon.svg", aria: { hidden: true }, size: 28 %>
+        <span>Writebook</span>
+      </a>
+    </div>
+
+    <div class="nav__actions">
+      <%# <% if Current.user %>
+        <%# <%= link_to users_path, class: "nav__link" do %>
+          <%# <%= image_tag "settings.svg", aria: { hidden: true }, size: 20 %>
+          <%# <span class="nav__link-text">Settings</span> %>
+        <%# <% end %>
+      <%# <% else %>
+        <%# <%= link_to new_session_path, class: "nav__link nav__link--primary" do %>
+          <%# <%= image_tag "login-keys.svg", aria: { hidden: true }, size: 20 %>
+          <%# <span class="nav__link-text">Sign in</span> %>
+        <%# <% end %>
+      <%# <% end %>
+    </div>
+  </nav>
+<% end %>
+
+<div class="articles__hero">
+  <div class="hero__content">
+    <div class="hero__icon">
+      <%= image_tag "art.svg", aria: { hidden: true }, size: 48 %>
+    </div>
+    <h1 class="hero__title">Articles</h1>
+    <p class="hero__subtitle">Your collection of standalone essays, stories, and thoughts</p>
+    
+    <% if signed_in? %>
+      <div class="hero__action">
+        <%= link_to new_article_path, class: "btn btn--hero" do %>
+          <%= image_tag "add.svg", aria: { hidden: true }, size: 18 %>
+          <span>Create Article</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  
+  <% if @articles.any? %>
+    <div class="hero__stats">
+      <div class="stat">
+        <span class="stat__number"><%= @articles.count %></span>
+        <span class="stat__label"><%= pluralize(@articles.count, 'article') %></span>
+      </div>
+      <div class="stat">
+        <span class="stat__number"><%= @articles.published.count %></span>
+        <span class="stat__label">published</span>
+      </div>
+      <div class="stat">
+        <span class="stat__number"><%= @articles.sum { |a| a.collaborators.count } %></span>
+        <span class="stat__label">collaborators</span>
+      </div>
+      <div class="stat">
+        <span class="stat__number"><%= @articles.select(&:everyone_access?).count %></span>
+        <span class="stat__label">public</span>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @articles.any? %>
+  <div class="articles__content" data-controller="articles">
+    <div class="articles__filters">
+      <div class="filter__group">
+        <button class="filter__btn filter__btn--active" data-filter="all" data-articles-target="filterBtn">
+          All Articles
+        </button>
+        <button class="filter__btn" data-filter="published" data-articles-target="filterBtn">
+          Published
+        </button>
+        <button class="filter__btn" data-filter="draft" data-articles-target="filterBtn">
+          Drafts
+        </button>
+      </div>
+      
+      <div class="view__controls">
+        <button class="view__btn view__btn--active" data-view="grid" title="Grid view" data-articles-target="viewBtn">
+          <%= image_tag "view-grid.svg", aria: { hidden: true }, size: 18 %>
+        </button>
+        <button class="view__btn" data-view="list" title="List view" data-articles-target="viewBtn">
+          <%= image_tag "view-list.svg", aria: { hidden: true }, size: 18 %>
+        </button>
+      </div>
+    </div>
+
+    <div class="articles__grid" data-view="grid" data-articles-target="grid">
+      <% @articles.each do |article| %>
+        <div data-articles-target="card" data-status="<%= article.published? ? 'published' : 'draft' %>">
+          <%= render "article_card", article: article %>
+        </div>
+      <% end %>
+      
+      <% if signed_in? %>
+        <div class="article-card article-card--create">
+          <%= link_to new_article_path, class: "create__link" do %>
+            <div class="create__icon">
+              <%= image_tag "add.svg", aria: { hidden: true }, size: 32 %>
+            </div>
+            <h3 class="create__title">New Article</h3>
+            <p class="create__subtitle">Start writing something new</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="articles__empty">
+    <div class="empty__illustration">
+      <div class="empty__circle">
+        <%= image_tag "art.svg", aria: { hidden: true }, size: 64 %>
+      </div>
+    </div>
+    
+    <div class="empty__content">
+      <h2 class="empty__title">Start Your Writing Journey</h2>
+      <p class="empty__description">
+        Articles are perfect for essays, blog posts, short stories, or any standalone piece. 
+        Create your first article and share your thoughts with the world.
+      </p>
+      
+      <% if signed_in? %>
+        <div class="empty__actions">
+          <%= link_to new_article_path, class: "btn btn--primary btn--large" do %>
+            <%= image_tag "add.svg", aria: { hidden: true }, size: 20 %>
+            <span>Create Your First Article</span>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty__actions">
+          <%= link_to new_session_path, class: "btn btn--outline btn--large" do %>
+            <span>Sign in to get started</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

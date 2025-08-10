@@ -7,7 +7,7 @@ class ArticlesController < ApplicationController
   before_action :set_users, only: %i[ new edit ]
 
   def index
-    @articles = Article.all
+    @articles = Article.includes(accesses: :user).all
   end
 
   def new
@@ -22,7 +22,7 @@ class ArticlesController < ApplicationController
 
   def show
     # Article shows its single page content
-    @leaf = @article.leaf.first
+    @leaf = @article.leaves.first
   end
 
   def edit
@@ -32,13 +32,14 @@ class ArticlesController < ApplicationController
   def update
     @article.update(article_params)
     update_accesses(@article)
+    remove_cover if params[:remove_cover] == "true"
 
     # Update the page content if provided
     if page_params.present?
       @article.page.update!(page_params)
     end
 
-    redirect_to slugged_article_url(@article, @article.slug)
+    redirect_to articles_path
   end
 
   def destroy
@@ -60,7 +61,7 @@ class ArticlesController < ApplicationController
     end
 
     def article_params
-      params.require(:article).permit(:title, :subtitle, :author, :everyone_access, :theme, :cover)
+      params.require(:article).permit(:title, :subtitle, :author, :everyone_access, :theme, :cover, :published)
     end
 
     def page_params
@@ -71,5 +72,9 @@ class ArticlesController < ApplicationController
       editors = [ Current.user.id, *params[:editor_ids]&.map(&:to_i) ]
       readers = [ Current.user.id, *params[:reader_ids]&.map(&:to_i) ]
       article.update_access(editors: editors, readers: readers)
+    end
+
+    def remove_cover
+      @article.cover.purge
     end
 end

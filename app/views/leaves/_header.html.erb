@@ -1,14 +1,27 @@
 <% content_for :header do %>
   <%= leaf_nav_tag(leaf) do %>
-    <% if leaf.book_id.present? %>
-      <%= render "leaves/sidebar_toggle" %>
+    <%= render "leaves/sidebar_toggle" %>
+    <% if container.is_a?(Book) %>
       <%= link_to_previous_leafable(leaf) %>
+    <% else %>
+      <%= link_to articles_path, class: "btn" do %>
+        <%= image_tag "arrow-left.svg", aria: { hidden: true }, size: 24 %>
+        <span class="for-screen-reader">Back to articles</span>
+      <% end %>
     <% end %>
 
     <div class="breadcrumbs">
-      <%= render "books/index_link" %>
+      <% if container.is_a?(Book) %>
+        <%= render "books/index_link" %>
+      <% else %>
+        <%= render "articles/article_index_link" %>
+      <% end %>
       <span class="flex-item-no-shrink">▸</span>
-      <%= link_to container.title, book_slug_path(container) %>
+      <% if container.is_a?(Book) %>
+        <%= link_to container.title, book_slug_path(container) %>
+      <% else %>
+        <%= container.author %>
+      <% end %>
       <span class="flex-item-no-shrink">▸</span>
       <strong><%= leaf.leafable.title %></strong>
     </div>

@@ -12,7 +12,7 @@ module SetBookLeaf
       if is_book?
         @container = Book.accessable_or_published.find(params[:book_id])
       else
-        @container = Article.find(params[:article_id])
+      @container = Article.find(params[:article_id])
       end
     end
 
@@ -21,7 +21,11 @@ module SetBookLeaf
     end
 
     def set_leaf
-      @leaf = @container.leaves.active.find(params[:id])
+      if is_book?
+        @leaf = @container.leaves.active.find(params[:id])
+      else
+        @leaf = @container.leaves.first
+      end
     end
 
     def set_leafable
